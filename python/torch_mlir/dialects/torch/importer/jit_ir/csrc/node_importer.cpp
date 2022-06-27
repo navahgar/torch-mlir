@@ -324,6 +324,28 @@ void NodeImporter::importNode(Node *node, MlirBlock appendToBlock) {
     return;
   }
 
+  if (kind == c10::prim::Store) {
+    auto attr = importAttribute(loc, node, c10::attr::name);
+    createAndMapNodeWithAttribute(node, "torch.store", "var", attr);
+    return;
+  }
+
+  if (kind == c10::prim::Load) {
+    auto attr = importAttribute(loc, node, c10::attr::name);
+    createAndMapNodeWithAttribute(node, "torch.load", "var", attr);
+    return;
+  }
+
+  if (kind == c10::prim::Enter) {
+    createAndMapTrivialNode(node, "torch.enter", nullptr);
+    return;
+  }
+
+  if (kind == c10::prim::Exit) {
+    createAndMapTrivialNode(node, "torch.exit", nullptr);
+    return;
+  }
+
   {
     std::stringstream msg;
     msg << "unhandled: could not import node: ";

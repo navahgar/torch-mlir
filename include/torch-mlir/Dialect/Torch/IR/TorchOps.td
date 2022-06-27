@@ -1165,4 +1165,41 @@ def Torch_ShapeCalculateYieldShapesOp : Torch_Op<"shape.calculate.yield.shapes",
   let hasVerifier = 1;
 }
 
+def Torch_StoreOp : Torch_Op<"store", []> {
+  let summary = "store operation";
+  let description = [{
+    This op represents a prim::Store node in the Python object graph.
+  }];
+  let arguments = (ins StrAttr:$var, AnyTorchType:$value);
+  let assemblyFormat = [{ $var `,` $value attr-dict `:` qualified(type($value)) }];
+}
+
+def Torch_LoadOp : Torch_Op<"load", []> {
+  let summary = "load operation";
+  let description = [{
+    This op represents a prim::Load node in the Python object graph.
+  }];
+  let arguments = (ins StrAttr:$var);
+  let results = (outs AnyTorchType:$result);
+  let assemblyFormat = [{ $var attr-dict `:` qualified(type($result)) }];
+}
+
+def Torch_EnterOp : Torch_Op<"enter", []> {
+  let summary = "enter operation";
+  let description = [{
+    This op represents a prim::Enter node in the Python object graph.
+  }];
+  let arguments = (ins AnyTorchType:$inp);
+  let assemblyFormat = [{ $inp attr-dict `:` qualified(type($inp)) }];
+}
+
+def Torch_ExitOp : Torch_Op<"exit", []> {
+  let summary = "exit operation";
+  let description = [{
+    This op represents a prim::Exit node in the Python object graph.
+  }];
+  let arguments = (ins AnyTorchType:$inp);
+  let assemblyFormat = [{ $inp attr-dict `:` qualified(type($inp)) }];
+}
+
 #endif // TORCH_OPS
