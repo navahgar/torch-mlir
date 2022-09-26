@@ -45,6 +45,9 @@ import torch
 
 PACKAGE_VERSION = os.environ.get("TORCH_MLIR_PYTHON_PACKAGE_VERSION") or "0.0.1"
 
+# If true, enable LTC build by default
+TORCH_MLIR_ENABLE_LTC_DEFAULT = False
+
 # Build phase discovery is unreliable. Just tell it what phases to run.
 class CustomBuild(_build):
 
@@ -68,12 +71,16 @@ class CMakeBuild(build_py):
             src_dir = os.path.abspath(os.path.dirname(__file__))
             llvm_dir = os.path.join(
                 src_dir, "externals", "llvm-project", "llvm")
+
+            enable_ltc = int(os.environ.get('TORCH_MLIR_ENABLE_LTC', TORCH_MLIR_ENABLE_LTC_DEFAULT))
+
             cmake_args = [
                 f"-DCMAKE_BUILD_TYPE=Release",
                 f"-DPython3_EXECUTABLE={sys.executable}",
                 f"-DLLVM_TARGETS_TO_BUILD=host",
                 f"-DMLIR_ENABLE_BINDINGS_PYTHON=ON",
                 f"-DLLVM_ENABLE_PROJECTS=mlir",
+                f"-DLLVM_ENABLE_ZSTD=OFF",
                 f"-DLLVM_EXTERNAL_PROJECTS=torch-mlir;torch-mlir-dialects",
                 f"-DLLVM_EXTERNAL_TORCH_MLIR_SOURCE_DIR={src_dir}",
                 f"-DLLVM_EXTERNAL_TORCH_MLIR_DIALECTS_SOURCE_DIR={src_dir}/externals/llvm-external-projects/torch-mlir-dialects",
@@ -81,7 +88,7 @@ class CMakeBuild(build_py):
                 f"-DCMAKE_VISIBILITY_INLINES_HIDDEN=ON",
                 f"-DCMAKE_C_VISIBILITY_PRESET=hidden",
                 f"-DCMAKE_CXX_VISIBILITY_PRESET=hidden",
-                f"-DTORCH_MLIR_ENABLE_LTC={'OFF' if int(os.environ.get('TORCH_MLIR_ENABLE_LTC', 1)) else 'OFF'}",
+                f"-DTORCH_MLIR_ENABLE_LTC={'ON' if enable_ltc else 'OFF'}",
             ]
 
             os.makedirs(cmake_build_dir, exist_ok=True)

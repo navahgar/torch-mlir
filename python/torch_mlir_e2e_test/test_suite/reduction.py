@@ -49,6 +49,25 @@ def ReduceSumDtypeFloatModule_basic(module, tu: TestUtils):
 
 # ==============================================================================
 
+class ReduceSumElementTypeBoolModule(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, -1, -1], torch.bool, True),
+    ])
+    def forward(self, a):
+        return torch.sum(a)
+
+
+@register_test_case(module_factory=lambda: ReduceSumElementTypeBoolModule())
+def ReduceSumElementTypeBoolModule_basic(module, tu: TestUtils):
+    module.forward(tu.randint(3, 4, 5, high=2).to(torch.bool))
+
+# ==============================================================================
+
 class ReduceSumDimIntListFloatModule(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -106,6 +125,25 @@ def ReduceSumDimIntListKeepDimFloatModule_basic(module, tu: TestUtils):
 
 # ==============================================================================
 
+class ReduceSumDimIntListKeepDimNegativeDimStaticModule(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([1, 12, 7, 7], torch.float32, True),
+    ])
+    def forward(self, a):
+        return torch.sum(a, dim=(-1), keepdim=True)
+
+
+@register_test_case(module_factory=lambda: ReduceSumDimIntListKeepDimNegativeDimStaticModule())
+def ReduceSumDimIntListKeepDimNegativeDimStaticModule_basic(module, tu: TestUtils):
+    module.forward(tu.rand(1, 12, 7, 7))
+
+# ==============================================================================
+
 class ReduceSumDimIntListEmptyDimModule(torch.nn.Module):
     def __init__(self):
         super().__init__()
@@ -122,6 +160,25 @@ class ReduceSumDimIntListEmptyDimModule(torch.nn.Module):
 @register_test_case(module_factory=lambda: ReduceSumDimIntListEmptyDimModule())
 def ReduceSumDimIntListEmptyDimModule_basic(module, tu: TestUtils):
     module.forward(tu.rand(3, 4, 5))
+
+# ==============================================================================
+
+class ReduceSumDimIntListElementTypeBoolModule(torch.nn.Module):
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, -1], torch.bool, True),
+    ])
+    def forward(self, a):
+        return torch.sum(a, dim=(-1), keepdim=False)
+
+
+@register_test_case(module_factory=lambda: ReduceSumDimIntListElementTypeBoolModule())
+def ReduceSumDimIntListElementTypeBoolModule_basic(module, tu: TestUtils):
+    module.forward(tu.randint(1, 128, high=2).to(dtype=torch.bool))
 
 # ==============================================================================
 
@@ -509,4 +566,38 @@ class ReduceL3NormKeepDimModule(torch.nn.Module):
 
 @register_test_case(module_factory=lambda: ReduceL3NormKeepDimModule())
 def ReduceL3NormKeepDimModule_basic(module, tu: TestUtils):
+    module.forward(torch.rand(3, 4, 5))
+
+# ==============================================================================
+class ReduceFrobeniusNormModule(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+    
+    @export 
+    @annotate_args([
+        None,
+        ([-1, -1, -1], torch.float32, True),
+    ])  
+    def forward(self, a):
+        return torch.ops.aten.frobenius_norm(a, dim=[0, 1], keepdim=False)
+
+@register_test_case(module_factory=lambda: ReduceFrobeniusNormModule())
+def ReduceFrobeniusNormModule_basic(module, tu: TestUtils):
+    module.forward(torch.rand(3, 4, 5))
+
+# ==============================================================================
+class ReduceFrobeniusNormKeepDimModule(torch.nn.Module):
+    def __init__(self) -> None:
+        super().__init__()
+    
+    @export 
+    @annotate_args([
+        None,
+        ([-1, -1, -1], torch.float32, True),
+    ])  
+    def forward(self, a):
+        return torch.ops.aten.frobenius_norm(a, dim=[0, 1], keepdim=True)
+
+@register_test_case(module_factory=lambda: ReduceFrobeniusNormKeepDimModule())
+def ReduceFrobeniusNormKeepDimModule_basic(module, tu: TestUtils):
     module.forward(torch.rand(3, 4, 5))

@@ -48,7 +48,7 @@ TM_PYTHON_VERSIONS="${TM_PYTHON_VERSIONS:-cp39-cp39 cp310-cp310}"
 # Location to store Release wheels
 TM_OUTPUT_DIR="${TM_OUTPUT_DIR:-${this_dir}/wheelhouse}"
 # What "packages to build"
-TM_PACKAGES="${TM_PACKAGES:-torch-mlir out-of-tree in-tree}"
+TM_PACKAGES="${TM_PACKAGES:-torch-mlir}"
 # Use pre-built Pytorch
 TM_USE_PYTORCH_BINARY="${TM_USE_PYTORCH_BINARY:-ON}"
 # Skip running tests if you want quick iteration
@@ -178,6 +178,7 @@ function build_in_tree() {
       -DLLVM_TARGETS_TO_BUILD=host \
       -DMLIR_ENABLE_BINDINGS_PYTHON=ON \
       -DTORCH_MLIR_ENABLE_LTC=OFF \
+      -DTORCH_MLIR_DIALECTS_ENABLE_TCP=OFF \
       -DTORCH_MLIR_USE_INSTALLED_PYTORCH="$torch_from_src" \
       -DPython3_EXECUTABLE="$(which python3)" \
       /main_checkout/torch-mlir/externals/llvm-project/llvm
@@ -211,11 +212,9 @@ function _check_file_not_changed_by() {
     # TODO: Is there a better cleanup strategy that doesn't require duplicating
     # this inside and outside the `if`?
     rm "$file_new"
-    rm "$file_backup"
     return 1
   fi
   rm "$file_new"
-  rm "$file_backup"
 }
 
 function test_in_tree() {
@@ -238,7 +237,9 @@ function test_in_tree() {
   python -m e2e_testing.main --config=eager_mode -v
 
   echo ":::: Run TOSA e2e integration tests"
-  python -m e2e_testing.main --config=tosa -v
+  # crashing_tests_to_not_attempt_to_run_and_a_bug_is_filed issues:
+  # - AvgPool2dFloatModule_basic,AvgPool2dCeilModeTrueModule_basic: https://github.com/llvm/torch-mlir/issues/1361
+  python -m e2e_testing.main --config=tosa -v --crashing_tests_to_not_attempt_to_run_and_a_bug_is_filed AvgPool2dFloatModule_basic AvgPool2dCeilModeTrueModule_basic
 
   # Temporarily disabled in top of main (https://github.com/llvm/torch-mlir/pull/1292)
   #echo ":::: Run Lazy Tensor Core e2e integration tests"

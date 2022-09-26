@@ -345,6 +345,28 @@ def ElementwiseReluModule_basic(module, tu: TestUtils):
 # ==============================================================================
 
 
+class ElementwiseRelu6Module(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, -1], torch.float32, True),
+    ])
+    def forward(self, x):
+        return torch.ops.aten.relu6(x)
+
+
+@register_test_case(module_factory=lambda: ElementwiseRelu6Module())
+def ElementwiseRelu6Module_basic(module, tu: TestUtils):
+    module.forward(tu.rand(4, 2) - 0.5)
+
+
+# ==============================================================================
+
+
 class ElementwiseLeakyReluModule(torch.nn.Module):
 
     def __init__(self):
@@ -1094,6 +1116,52 @@ def ElementwisePowModule_basic(module, tu: TestUtils):
 # ==============================================================================
 
 
+class ElementwisePowTensorModule(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, -1], torch.float32, True),
+        ([-1, -1], torch.float32, True),
+    ])
+    def forward(self, a, b):
+        return torch.pow(a, b)
+
+
+@register_test_case(module_factory=lambda: ElementwisePowTensorModule())
+def ElementwisePowTensorModule_basic(module, tu: TestUtils):
+    module.forward(tu.rand(3, 4), tu.rand(3, 4))
+
+
+# ==============================================================================
+
+
+class ElementwisePowTensorBroadcastModule(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, 1], torch.float32, True),
+        ([-1, -1], torch.float32, True),
+    ])
+    def forward(self, a, b):
+        return torch.pow(a, b)
+
+
+@register_test_case(module_factory=lambda: ElementwisePowTensorBroadcastModule())
+def ElementwisePowTensorBroadcastModule_basic(module, tu: TestUtils):
+    module.forward(tu.rand(3, 1), tu.rand(3, 4))
+
+
+# ==============================================================================
+
+
 class ElementwiseToDtypeF32ToI64Module(torch.nn.Module):
 
     def __init__(self):
@@ -1485,6 +1553,50 @@ def ElementwiseAndIntegerModule_basic(module, tu: TestUtils):
 # ==============================================================================
 
 
+class ElementwiseNotIntegerModule(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, -1], torch.int64, True),
+    ])
+    def forward(self, x):
+        return torch.bitwise_not(x)
+
+
+@register_test_case(module_factory=lambda: ElementwiseNotIntegerModule())
+def ElementwiseNotIntegerModule_basic(module, tu: TestUtils):
+    module.forward(tu.randint(3, 4, low=-10, high=10))
+
+
+# ==============================================================================
+
+
+class ElementwiseNotInt32Module(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, -1], torch.int32, True),
+    ])
+    def forward(self, x):
+        return torch.bitwise_not(x)
+
+
+@register_test_case(module_factory=lambda: ElementwiseNotInt32Module())
+def ElementwiseNotInt32Module_basic(module, tu: TestUtils):
+    module.forward(tu.randint(3, 4, low=-10, high=10).to(torch.int32))
+
+
+# ==============================================================================
+
+
 class ElementwiseSubScalarIntModule(torch.nn.Module):
 
     def __init__(self):
@@ -1633,6 +1745,28 @@ class ElementwiseCloneContiguousModule(torch.nn.Module):
 
 @register_test_case(module_factory=lambda: ElementwiseCloneContiguousModule())
 def ElementwiseCloneContiguousModule_basic(module, tu: TestUtils):
+    module.forward(tu.rand(2, 3, 4))
+
+
+# ==============================================================================
+
+
+class LiftFreshCopyModule(torch.nn.Module):
+
+    def __init__(self):
+        super().__init__()
+
+    @export
+    @annotate_args([
+        None,
+        ([-1, -1, -1], torch.float32, True),
+    ])
+    def forward(self, x):
+        return torch.ops.aten.lift_fresh_copy(x)
+
+
+@register_test_case(module_factory=lambda: LiftFreshCopyModule())
+def LiftFreshCopyModule_basic(module, tu: TestUtils):
     module.forward(tu.rand(2, 3, 4))
 
 
