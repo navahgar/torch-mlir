@@ -12,6 +12,8 @@
 
 include "mlir/IR/OpBase.td"
 
+include "mlir/Interfaces/SideEffectInterfaces.td"
+
 def Tcp_Dialect : Dialect {
   let name = "tcp";
   let cppNamespace = "::mlir::tcp";
@@ -32,12 +34,40 @@ def Tcp_Dialect : Dialect {
 def Tcp_Scalar : AnyTypeOf<[AnyFloat, AnySignlessInteger, AnyComplex]>;
 def Tcp_Tensor : RankedTensorOf<[Tcp_Scalar]>;
 
+def Tcp_FloatTensor : RankedTensorOf<[AnyFloat]>;
+def Tcp_FloatOrComplexTensor : RankedTensorOf<[AnyFloat, AnyComplex]>;
+
+//===----------------------------------------------------------------------===//
+// Attribute Definitions.
+//===----------------------------------------------------------------------===//
+
+// TODO: Move this to MLIR core, if possible.
+def IndexArrayAttr : TypedArrayAttrBase<IndexAttr,
+                                      "Index array attribute"> {
+  let constBuilderCall = "$_builder.getIndexArrayAttr($0)";
+}
+
 //===----------------------------------------------------------------------===//
 // Tcp Ops Base.
 //===----------------------------------------------------------------------===//
 
 class Tcp_Op<string mnemonic, list<Trait> traits = []> :
     Op<Tcp_Dialect, mnemonic, traits> {
+}
+
+class Tcp_UnaryOp<string mnemonic, list<Trait> traits = []> :
+    Tcp_Op<mnemonic, !listconcat(traits, [
+        Pure,
+        Elementwise,
+        SameOperandsAndResultShape,
+        SameOperandsAndResultElementType])> {
+}
+
+class Tcp_BinaryOp<string mnemonic, list<Trait> traits = []> :
+    Tcp_Op<mnemonic, !listconcat(traits, [
+        NoMemoryEffect,
+        Elementwise,
+        SameOperandsAndResultShape])> {
 }
 
 #endif // TORCH_MLIR_DIALECT_TCP_BASE
