@@ -14,22 +14,82 @@ include "torch-mlir-dialects/Dialect/Tcp/IR/TcpBase.td"
 
 include "mlir/IR/OpBase.td"
 
-def Tcp_DummyOp : Tcp_Op<"dummy", []> {
-  let summary = "dummy op";
+def Tcp_TanhOp : Tcp_UnaryOp<"tanh"> {
+  let summary = "Computes tanh of input, elementwise";
 
   let description = [{
-    Dummy identity op that returns the input as output
+    Elementwise unary op to compute hyperbolic tangent.
   }];
 
   let arguments = (ins
-    Tcp_Tensor:$in
+    Tcp_FloatOrComplexTensor:$in
+  );
+
+  let results = (outs
+    Tcp_FloatOrComplexTensor:$out
+  );
+
+  let assemblyFormat = "$in attr-dict `:` type($in) `->` type($out)";
+}
+
+def Tcp_AddOp : Tcp_BinaryOp<"add", [SameOperandsAndResultElementType]> {
+  let summary = "Computes elementwise addition";
+
+  let description = [{
+    Elementwise addition.
+  }];
+
+  let arguments = (ins
+    Tcp_Tensor:$in1,
+    Tcp_Tensor:$in2
   );
 
   let results = (outs
     Tcp_Tensor:$out
   );
 
-  let assemblyFormat = "$in attr-dict `:` type($in) `->` type($out)";
+  let assemblyFormat = "$in1 `,` $in2 attr-dict `:` type($in1) `,` type($in2) `->` type($out)";
+}
+
+def Tcp_BroadcastOp : Tcp_Op<"broadcast", [
+          AllRanksMatch<["in", "out"]>,
+          AllElementTypesMatch<["in", "out"]>,
+          PredOpTrait<
+            "attribute `axes` must be in increasing order",
+            CPred<"::llvm::is_sorted(getAxes(), "
+                  "[](::mlir::Attribute v1, ::mlir::Attribute v2) {"
+                  "return v1.cast<::mlir::IntegerAttr>().getInt() < v2.cast<::mlir::IntegerAttr>().getInt(); })">
+          >,
+          PredOpTrait<
+            "attribute `axes` must not have any duplicates",
+            CPred<"std::adjacent_find(std::begin(getAxes()), std::end(getAxes())) == std::end(getAxes())">
+          >,
+          PredOpTrait<
+            "argument `new_dim_sizes` has the same size as the attribute `axes`",
+            CPred<"getNewDimSizes().size() == getAxes().size()">
+          >]> {
+  let summary = "Broadcasts input to a given shape";
+
+  let description = [{
+    Broadcasts the input to a given shape.
+
+    This op only does dim-1 broadcasting. It does not change the rank of the input.
+
+    The attribute `$axes` must be sorted and not have any duplicates. The size
+    of `$axes` must be equal to the size of the variadic argument `$new_dim_sizes`.
+  }];
+
+  let arguments = (ins
+    Tcp_Tensor:$in,
+    Variadic<Index>:$new_dim_sizes,
+    IndexArrayAttr:$axes
+  );
+
+  let results = (outs
+    Tcp_Tensor:$out
+  );
+
+  let assemblyFormat = "$in `,` $new_dim_sizes attr-dict `:` type($in) `,` type($new_dim_sizes) `->` type($out)";
 }
 
 #endif // TORCH_MLIR_DIALECT_TCP_OPS

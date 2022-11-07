@@ -283,6 +283,12 @@ MHLO_PASS_SET = {
     "AtenRoundIntModule_basic",
 }
 
+TCP_PASS_SET = {
+    "BroadcastToModule_basic",
+    "ElementwiseAddModule_basic",
+    "ElementwiseUnaryModule_basic",
+}
+
 # Write the TOSA set as a "passing" set as it is very early in development
 # and very few tests work yet.
 TOSA_PASS_SET = {
