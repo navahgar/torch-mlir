@@ -14,6 +14,9 @@ include "torch-mlir-dialects/Dialect/Tcp/IR/TcpBase.td"
 
 include "mlir/IR/OpBase.td"
 
+// Import ops that are not yet upstreamed
+include "TcpExternalOps.td"
+
 def Tcp_TanhOp : Tcp_UnaryElementwiseOp<"tanh"> {
   let summary = "Computes tanh of input, elementwise";
 
