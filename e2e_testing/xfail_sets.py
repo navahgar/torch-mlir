@@ -421,6 +421,7 @@ TCP_PASS_SET = {
     "BoolTensorReturnTrueModule_basic",
     "BroadcastToModule_basic",
     "BroadcastZeroRankInputStaticModule_basic",
+    "Convolution2DStaticModule_basic",
     "DropoutEvalFloatModule_basic",
     "DropoutEvalIntModule_basic",
     "ElementwiseAddModule_basic",

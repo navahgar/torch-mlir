@@ -1,5 +1,6 @@
 add_mlir_conversion_library(TorchMLIRTorchToTcp
   Elementwise.cpp
+  External.cpp
   Misc.cpp
   TorchToTcp.cpp
   Utils.cpp

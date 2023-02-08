@@ -46,6 +46,8 @@ public:
 
     RewritePatternSet patterns(context);
 
+    TcpToLinalg::populateExternalPatternsAndLegality(typeConverter, patterns,
+                                                     target);
     TcpToLinalg::populateElementwisePatternsAndLegality(typeConverter, patterns,
                                                         target);
     TcpToLinalg::populateMiscPatternsAndLegality(typeConverter, patterns,

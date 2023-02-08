@@ -1,5 +1,6 @@
 add_mlir_conversion_library(TorchMLIRTcpToLinalg
   Elementwise.cpp
+  External.cpp
   Misc.cpp
   TcpToLinalg.cpp
 

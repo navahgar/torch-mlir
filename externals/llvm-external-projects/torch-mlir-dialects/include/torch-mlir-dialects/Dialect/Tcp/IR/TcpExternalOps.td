@@ -3,6 +3,9 @@
 
 def Tcp_TensorOrScalar : AnyTypeOf<[Tcp_Tensor, Tcp_Scalar]>;
 
+def Tcp_Tensor4D : 4DTensorOf<[Tcp_Scalar]>;
+def Tcp_Tensor1D : 1DTensorOf<[Tcp_Scalar]>;
+
 def Tcp_YieldOp : Tcp_Op<"yield", [Terminator, Pure]> {
   let summary = "yield operator";
 
@@ -60,6 +63,29 @@ def Tcp_IsolatedGroupOp : Tcp_Op<"isolated_group", [IsolatedFromAbove]> {
   );
 
   let assemblyFormat = "$ins attr-dict-with-keyword $body `:` type($ins) `->` type($outs)";
+}
+
+def Tcp_Conv2DOp : Tcp_Op<"conv2d", [Pure]> {
+  let summary = "2D Convolution Operator";
+
+  let description = [{
+    Performs a 2D convolution over the input tensor, using the weight tensor.
+  }];
+
+  let arguments = (ins
+    Tcp_Tensor4D:$input,
+    Tcp_Tensor4D:$weight,
+
+    DenseI64ArrayAttr:$pad,
+    DenseI64ArrayAttr:$stride,
+    DenseI64ArrayAttr:$dilation
+  );
+
+  let results = (outs
+    Tcp_Tensor4D:$output
+  );
+
+  let assemblyFormat = "$input `,` $weight attr-dict `:` type($input) `,` type($weight) `->` type($output)";
 }
 
 #endif // TORCH_MLIR_DIALECT_TCP_EXTERNAL

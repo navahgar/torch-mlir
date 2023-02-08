@@ -42,3 +42,19 @@ func.func @test_isolated_group(%arg0 : tensor<?x?xf32>, %arg1 : tensor<?x?xf32>)
   }) { group_type = "elementwise" } : (tensor<?x?xf32>, tensor<?x?xf32>) -> tensor<?x?xf32>
   return %10 : tensor<?x?xf32>
 }
+
+// -----
+
+// CHECK-LABEL: func.func @test_conv2d(
+// CHECK-SAME:          %[[ARG0:.*]]: tensor<?x?x?x?xf32>,
+// CHECK-SAME:          %[[ARG1:.*]]: tensor<?x?x3x3xf32>) -> tensor<?x?x?x?xf32>
+// CHECK:         %[[CONV:.*]] = tcp.conv2d %[[ARG0]], %[[ARG1]]
+// CHECK-SAME:                     {dilation = array<i64: 3, 1>, pad = array<i64: 4, 4, 2, 2>, stride = array<i64: 2, 1>}
+// CHECK-SAME:                    : tensor<?x?x?x?xf32>, tensor<?x?x3x3xf32> -> tensor<?x?x?x?xf32>
+// CHECK:         return %[[CONV]] : tensor<?x?x?x?xf32>
+func.func @test_conv2d(%arg0 : tensor<?x?x?x?xf32>, %arg1 : tensor<?x?x3x3xf32>) -> tensor<?x?x?x?xf32> {
+  %10 = tcp.conv2d %arg0, %arg1
+            {dilation = array<i64: 3, 1>, pad = array<i64: 4, 4, 2, 2>, stride = array<i64: 2, 1>}
+            : tensor<?x?x?x?xf32>, tensor<?x?x3x3xf32> -> tensor<?x?x?x?xf32>
+  return %10 : tensor<?x?x?x?xf32>
+}

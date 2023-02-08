@@ -12,6 +12,9 @@
 namespace mlir {
 namespace torch_to_tcp {
 
+void populateExternalPatternsAndLegality(TypeConverter &typeConverter,
+                                         RewritePatternSet &patterns,
+                                         ConversionTarget &target);
 void populateElementwisePatternsAndLegality(TypeConverter &typeConverter,
                                             RewritePatternSet &patterns,
                                             ConversionTarget &target);
