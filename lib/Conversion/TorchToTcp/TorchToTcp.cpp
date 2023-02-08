@@ -50,6 +50,8 @@ public:
 
     RewritePatternSet patterns(context);
 
+    torch_to_tcp::populateExternalPatternsAndLegality(typeConverter, patterns,
+                                                      target);
     torch_to_tcp::populateElementwisePatternsAndLegality(typeConverter,
                                                          patterns, target);
     torch_to_tcp::populateMiscPatternsAndLegality(typeConverter, patterns,
