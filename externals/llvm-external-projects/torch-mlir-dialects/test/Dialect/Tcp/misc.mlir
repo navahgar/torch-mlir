@@ -62,3 +62,17 @@ func.func @test_broadcast_axes_w_duplicates(%arg0 : tensor<?x1x?x1xf32>, %arg1 :
   %0 = "tcp.broadcast"(%arg0, %arg1, %arg2) {axes = [1, 1]} : (tensor<?x1x?x1xf32>, index, index) -> tensor<?x?x?x?xf32>
   return %0 : tensor<?x?x?x?xf32>
 }
+
+// -----
+
+// CHECK-LABEL: func.func @test_constants() -> tensor<f32>
+// CHECK:         %[[CONST0:.*]] = tcp.const {value = dense<2.500000e+00> : tensor<f32>} : tensor<f32>
+// CHECK:         %[[CONST1:.*]] = tcp.const {value = dense<[3, 6, 10]> : tensor<3xi32>} : tensor<3xi32>
+// CHECK:         %[[CONST2:.*]] = tcp.const
+// CHECK-SAME{LITERAL}: value = dense<[[2, 3, 5], [20, 25, 30]]> : tensor<2x3xi64>} : tensor<2x3xi64>
+func.func @test_constants() -> tensor<f32> {
+  %0 = "tcp.const"() {value = dense<2.5> : tensor<f32>} : () -> tensor<f32>
+  %1 = "tcp.const"() {value = dense<[3, 6, 10]> : tensor<3xi32>} : () -> tensor<3xi32>
+  %2 = "tcp.const"() {value = dense<[[2, 3, 5], [20, 25, 30]]> : tensor<2x3xi64>} : () -> tensor<2x3xi64>
+  return %0 : tensor<f32>
+}
