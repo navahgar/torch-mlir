@@ -23,6 +23,9 @@ add_mlir_library(TorchMLIRInitAll
   TorchMLIRTMTensorPasses
   TorchMLIRTMTensorDialect
 
+  TorchMLIRTcpPasses
+  TorchMLIRTcpDialect
+
   TorchMLIRConversionPasses
   TorchMLIRRefBackend
 )

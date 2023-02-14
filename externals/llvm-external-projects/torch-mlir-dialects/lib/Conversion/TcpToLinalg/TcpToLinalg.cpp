@@ -40,6 +40,9 @@ public:
     ConversionTarget target(*context);
     target.addLegalDialect<linalg::LinalgDialect, math::MathDialect,
                            tensor::TensorDialect, arith::ArithDialect>();
+    target.addLegalOp<GroupOp>();
+    target.addLegalOp<IsolatedGroupOp>();
+    target.addLegalOp<YieldOp>();
 
     TypeConverter typeConverter;
     typeConverter.addConversion([](Type type) { return type; });

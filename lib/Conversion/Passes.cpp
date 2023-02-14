@@ -22,6 +22,7 @@
 #include "torch-mlir/Conversion/TorchToTMTensor/TorchToTMTensor.h"
 #include "torch-mlir/Conversion/TorchConversionToMLProgram/TorchConversionToMLProgram.h"
 #ifdef TORCH_MLIR_ENABLE_TCP
+#include "torch-mlir-dialects/Conversion/TcpToArith/TcpToArith.h"
 #include "torch-mlir-dialects/Conversion/TcpToLinalg/TcpToLinalg.h"
 #endif // TORCH_MLIR_ENABLE_TCP
 
@@ -45,6 +46,9 @@ void mlir::torch::registerConversionPasses() {
   });
 #endif // TORCH_MLIR_ENABLE_MHLO
 #ifdef TORCH_MLIR_ENABLE_TCP
+  ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
+    return mlir::tcp::createConvertTcpToArithPass();
+  });
   ::mlir::registerPass([]() -> std::unique_ptr<::mlir::Pass> {
     return mlir::tcp::createConvertTcpToLinalgPass();
   });

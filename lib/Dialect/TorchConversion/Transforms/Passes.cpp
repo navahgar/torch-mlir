@@ -9,18 +9,23 @@
 
 #include "torch-mlir/Dialect/TorchConversion/Transforms/Passes.h"
 #include "mlir/Conversion/Passes.h"
+#include "mlir/Conversion/TosaToLinalg/TosaToLinalg.h"
 #include "mlir/Dialect/Func/Transforms/Passes.h"
 #include "mlir/Dialect/Linalg/Passes.h"
 #include "mlir/Dialect/MemRef/Transforms/Passes.h"
 #include "mlir/Dialect/Tosa/Transforms/Passes.h"
 #include "mlir/Pass/PassManager.h"
 #include "mlir/Transforms/Passes.h"
+#include "torch-mlir-dialects/Conversion/TcpToArith/TcpToArith.h"
+#include "torch-mlir-dialects/Conversion/TcpToLinalg/TcpToLinalg.h"
+#include "torch-mlir-dialects/Dialect/Tcp/Transforms/FuseTcpOpsPass.h"
+#include "torch-mlir-dialects/Dialect/Tcp/Transforms/IsolateGroupOpsPass.h"
+#include "torch-mlir/Conversion/TorchConversionToMLProgram/TorchConversionToMLProgram.h"
+#include "torch-mlir/Conversion/TorchToArith/TorchToArith.h"
 #include "torch-mlir/Conversion/TorchToLinalg/TorchToLinalg.h"
 #include "torch-mlir/Conversion/TorchToSCF/TorchToSCF.h"
-#include "torch-mlir/Conversion/TorchToArith/TorchToArith.h"
 #include "torch-mlir/Conversion/TorchToTMTensor/TorchToTMTensor.h"
 #include "torch-mlir/Conversion/TorchToTosa/TorchToTosa.h"
-#include "torch-mlir/Conversion/TorchConversionToMLProgram/TorchConversionToMLProgram.h"
 #ifdef TORCH_MLIR_ENABLE_MHLO
 #include "mhlo/transforms/passes.h"
 #include "torch-mlir/Conversion/TorchToMhlo/TorchToMhlo.h"
@@ -165,6 +170,8 @@ void TorchConversion::createTorchBackendToMhloBackendPipeline(
 void TorchConversion::createTorchBackendToTcpBackendPipeline(
     OpPassManager &pm) {
   pm.addNestedPass<func::FuncOp>(createConvertTorchToTcpPass());
+  pm.addNestedPass<func::FuncOp>(createConvertTorchToTosaPass());
+  pm.addNestedPass<func::FuncOp>(createTosaMakeBroadcastablePass());
 
   // Clean up any non-canonical code introduced above.
   pm.addNestedPass<func::FuncOp>(createCanonicalizerPass());
@@ -181,6 +188,17 @@ void TorchConversion::createTorchBackendToTcpBackendPipeline(
   // Verify that we have lowered to the form that TCP backend expects.
   // This fails compilation (signalPassFailure) if the IR is not in the
   // correct form.
-  pm.addPass(TorchConversion::createVerifyTcpBackendContractPass());
+  // pm.addPass(TorchConversion::createVerifyTcpBackendContractPass());
+
+  pm.addPass(mlir::tcp::createTcpFuseOpsForCudnnPass());
+  pm.addPass(mlir::tcp::createTcpIsolateGroupOpsPass());
+
+  pm.addPass(mlir::tcp::createConvertTcpToArithPass());
+  pm.addPass(mlir::tcp::createConvertTcpToLinalgPass());
+  pm.addNestedPass<func::FuncOp>(createTosaToArith());
+  pm.addNestedPass<func::FuncOp>(createTosaToLinalgNamed());
+  pm.addNestedPass<func::FuncOp>(createTosaToTensor());
+  pm.addNestedPass<func::FuncOp>(createTosaToLinalg());
+  pm.addNestedPass<func::FuncOp>(createTosaToArith());
 }
 #endif // TORCH_MLIR_ENABLE_TCP
