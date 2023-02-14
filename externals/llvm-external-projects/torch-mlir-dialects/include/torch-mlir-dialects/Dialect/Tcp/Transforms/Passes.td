@@ -12,10 +12,16 @@
 
 include "mlir/Pass/PassBase.td"
 
-// \brief This is a pass that performs fusion of TCP ops.
+// \brief This is a pass that performs fusion of TCP elementwise ops.
 def TcpFuseElementwiseOps : Pass<"tcp-fuse-elementwise-ops", "ModuleOp"> {
   let summary = "Performs fusion of tcp elementwise ops";
   let constructor = "mlir::tcp::createTcpFuseElementwiseOpsPass()";
+}
+
+// \brief This is a pass that performs fusion of TCP ops to target Cudnn library.
+def TcpFuseOpsForCudnn : Pass<"tcp-fuse-ops-for-cudnn", "ModuleOp"> {
+  let summary = "Performs fusion of tcp ops to target Cudnn library";
+  let constructor = "mlir::tcp::createTcpFuseOpsForCudnnPass()";
 }
 
 // \brief This pass makes all TCP group ops isolated from above.

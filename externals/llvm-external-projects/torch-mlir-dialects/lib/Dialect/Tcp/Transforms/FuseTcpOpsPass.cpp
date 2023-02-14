@@ -29,6 +29,7 @@ public:
   LogicalResult matchAndRewrite(Operation *op,
                                 PatternRewriter &rewriter) const override {
     Operation *use = op;
+    bool changed = false;
     for (auto operand : op->getOperands()) {
       if (operand.getDefiningOp()) {
         Operation *def = operand.getDefiningOp();
@@ -78,10 +79,11 @@ public:
           } else {
             llvm_unreachable("Unhandled case during fusion");
           }
+          changed = true;
         }
       }
     }
-    return success();
+    return changed ? success() : failure();
   }
 
 private:
@@ -105,10 +107,43 @@ class TcpFuseElementwiseOpsPass
   }
 };
 
+class TcpFuseOpsForCudnnPass
+    : public TcpFuseOpsForCudnnBase<TcpFuseOpsForCudnnPass> {
+  void runOnOperation() override {
+    Operation *op = getOperation();
+    MLIRContext *context = op->getContext();
+    RewritePatternSet patterns(context);
+
+    auto fuseReluConv = [](Operation *def, Operation *use) -> bool {
+      // TODO: Make this a utility
+      auto isRelu = [](Operation *operation) -> bool {
+        if (auto clamp = dyn_cast<ClampOp>(operation))
+          if (clamp.getMinFloat() && clamp.getMinFloat()->isZero() &&
+              !clamp.getMaxFloat())
+            return true;
+        return false;
+      };
+      return isRelu(def) && isa<Conv2DOp>(use);
+    };
+    patterns.add<GenericBottomUpFuser>(context, fuseReluConv, "relu-conv");
+
+    auto fuseTanhConv = [](Operation *def, Operation *use) -> bool {
+      return isa<TanhOp>(def) && isa<Conv2DOp>(use);
+    };
+    patterns.add<GenericBottomUpFuser>(context, fuseTanhConv, "tanh-conv");
+
+    (void)applyPatternsAndFoldGreedily(op, std::move(patterns));
+  }
+};
+
 } // namespace
 
 std::unique_ptr<OperationPass<ModuleOp>> createTcpFuseElementwiseOpsPass() {
   return std::make_unique<TcpFuseElementwiseOpsPass>();
+}
+
+std::unique_ptr<OperationPass<ModuleOp>> createTcpFuseOpsForCudnnPass() {
+  return std::make_unique<TcpFuseOpsForCudnnPass>();
 }
 
 } // namespace mlir::tcp
