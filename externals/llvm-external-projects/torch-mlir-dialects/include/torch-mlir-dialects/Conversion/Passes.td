@@ -47,6 +47,23 @@ def ConvertTcpToArith
   ];
 }
 
+//===----------------------------------------------------------------------===//
+// TcpToCUDNN
+//===----------------------------------------------------------------------===//
+
+def ConvertTcpToCUDNN
+      : Pass<"convert-tcp-to-cudnn", "func::FuncOp"> {
+  let summary = "Lower TCP to CUDNN";
+  let description = [{
+    Pass that converts TCP operations to equivalent operations in CUDNN.
+  }];
+
+  let constructor = "mlir::tcp::createConvertTcpToCUDNNPass()";
+  let dependentDialects = [
+    "mlir::cudnn::CUDNNDialect",
+  ];
+}
+
 #endif // TORCH_MLIR_DIALECTS_ENABLE_TCP
 
 #endif // TORCH_MLIR_DIALECTS_CONVERSION_PASSES

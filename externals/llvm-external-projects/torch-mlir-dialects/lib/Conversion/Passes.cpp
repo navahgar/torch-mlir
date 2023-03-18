@@ -11,6 +11,7 @@
 
 #ifdef TORCH_MLIR_DIALECTS_ENABLE_TCP
 #include "torch-mlir-dialects/Conversion/TcpToArith/TcpToArith.h"
+#include "torch-mlir-dialects/Conversion/TcpToCUDNN/TcpToCUDNN.h"
 #include "torch-mlir-dialects/Conversion/TcpToLinalg/TcpToLinalg.h"
 #endif // TORCH_MLIR_DIALECTS_ENABLE_TCP
 

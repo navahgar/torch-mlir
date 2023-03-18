@@ -8,6 +8,7 @@
 //===----------------------------------------------------------------------===//
 
 #include "mlir/Dialect/Arith/IR/Arith.h"
+#include "mlir/Dialect/CUDNN/IR/CUDNNDialect.h"
 #include "mlir/Dialect/Func/IR/FuncOps.h"
 #include "mlir/Dialect/Linalg/IR/Linalg.h"
 #include "mlir/Dialect/MemRef/IR/MemRef.h"
@@ -48,8 +49,9 @@ int main(int argc, char **argv) {
 #endif // TORCH_MLIR_DIALECTS_ENABLE_TCP
       // Upstream dialects
       mlir::arith::ArithDialect, mlir::linalg::LinalgDialect,
-      mlir::func::FuncDialect, mlir::memref::MemRefDialect,
-      mlir::scf::SCFDialect, mlir::tensor::TensorDialect>();
+      mlir::cudnn::CUDNNDialect, mlir::func::FuncDialect,
+      mlir::memref::MemRefDialect, mlir::scf::SCFDialect,
+      mlir::tensor::TensorDialect>();
 
 #ifdef TORCH_MLIR_DIALECTS_ENABLE_TCP
   mlir::tcp::registerTcpPasses();
