@@ -15,6 +15,7 @@
 #include "torch-mlir-dialects/Dialect/TMTensor/Transforms/Passes.h"
 #include "torch-mlir-dialects/Dialect/Tcp/IR/TcpDialect.h"
 #include "torch-mlir-dialects/Dialect/Tcp/Transforms/Passes.h"
+#include "torch-mlir-dialects/Conversion/Passes.h"
 #include "torch-mlir/Conversion/Passes.h"
 #include "torch-mlir/Dialect/Torch/IR/TorchDialect.h"
 #include "torch-mlir/Dialect/Torch/Transforms/Passes.h"
@@ -39,4 +40,5 @@ void mlir::torch::registerAllPasses() {
   mlir::torch::TMTensor::registerPasses();
 
   mlir::tcp::registerTcpPasses();
+  mlir::torch_mlir_dialects::registerConversionPasses();
 }

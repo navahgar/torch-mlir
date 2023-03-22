@@ -15,7 +15,7 @@ add_mlir_conversion_library(TorchMLIRTcpToCUDNN
   MLIRIR
   MLIRPass
   MLIRTransforms
-  MLIRCUDNN
+  MLIRCUDNNDialect
   MLIRSupport
   TorchMLIRTcpDialect
 )

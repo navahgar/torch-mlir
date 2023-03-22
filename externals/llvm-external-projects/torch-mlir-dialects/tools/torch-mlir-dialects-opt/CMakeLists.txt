@@ -1,6 +1,6 @@
 set(LIBS
   MLIRArithDialect
-  MLIRCUDNN
+  MLIRCUDNNDialect
   MLIRDialect
   MLIRLinalgDialect
   MLIRMemRefDialect

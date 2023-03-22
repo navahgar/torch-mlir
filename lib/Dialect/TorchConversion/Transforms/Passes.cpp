@@ -18,6 +18,7 @@
 #include "mlir/Transforms/Passes.h"
 #include "torch-mlir-dialects/Conversion/TcpToArith/TcpToArith.h"
 #include "torch-mlir-dialects/Conversion/TcpToLinalg/TcpToLinalg.h"
+#include "torch-mlir-dialects/Conversion/TcpToCUDNN/TcpToCUDNN.h"
 #include "torch-mlir-dialects/Dialect/Tcp/Transforms/FuseTcpOpsPass.h"
 #include "torch-mlir-dialects/Dialect/Tcp/Transforms/IsolateGroupOpsPass.h"
 #include "torch-mlir/Conversion/TorchConversionToMLProgram/TorchConversionToMLProgram.h"
@@ -193,6 +194,7 @@ void TorchConversion::createTorchBackendToTcpBackendPipeline(
   pm.addPass(mlir::tcp::createTcpFuseOpsForCudnnPass());
   pm.addPass(mlir::tcp::createTcpIsolateGroupOpsPass());
 
+  pm.addPass(mlir::tcp::createConvertTcpToCUDNNPass());
   pm.addPass(mlir::tcp::createConvertTcpToArithPass());
   pm.addPass(mlir::tcp::createConvertTcpToLinalgPass());
   pm.addNestedPass<func::FuncOp>(createTosaToArith());
